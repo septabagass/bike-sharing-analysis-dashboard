@@ -79,13 +79,29 @@ if 'rush_hour' in rata2 and 'non_rush_hour' in rata2:
     st.metric("Perbedaan (%)", f"{persentase:.2f}%")
 
 # 2. Casual vs Registered
-st.subheader("Casual vs Registered")
+st.subheader("Insight 2: Dampak Cuaca (Winter)")
 
-user = filtered_df[['casual','registered']].sum()
+winter = day_df[day_df['season_label'] == 'winter']
 
-fig, ax = plt.subplots()
-user.plot(kind='bar',ax=ax)
-st.pyplot(fig)
+clear = winter[winter['weathersit_label'] == 'Clear']['cnt'].mean()
+light = winter[winter['weathersit_label'] == 'Light Rain']['cnt'].mean()
+
+penurunan = ((clear - light)/clear)*100
+
+st.metric("Penurunan (%)", f"{penurunan:.2f}%")
+
+
+# Growth Casual 
+st.subheader("Insight 3: Growth Casual (Weekend)")
+
+weekend = day_df[(day_df['yr_label'] == 2012) & (day_df['workingday'] == 0)]
+
+spring = weekend[weekend['season_label'] == 'spring']['casual'].mean()
+summer = weekend[weekend['season_label'] == 'summer']['casual'].mean()
+
+growth = ((summer - spring)/spring)*100
+
+st.metric("Growth (%)", f"{growth:.2f}%")
 
 
 # Cuaca 
