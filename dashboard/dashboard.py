@@ -1,17 +1,23 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import os # Tambahkan library os
 import streamlit as st
 
-# Menggunakan cache agar data tidak diload ulang setiap kali ada interaksi
 @st.cache_data
 def load_data():
-    day_df = pd.read_csv("day.csv")
-    hour_df = pd.read_csv("hour.csv")
+    # Mendapatkan direktori tempat file dashboard.py ini berada
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Menggabungkan direktori dengan nama file CSV
+    day_path = os.path.join(current_dir, "day.csv")
+    hour_path = os.path.join(current_dir, "hour.csv")
+
+    # Membaca CSV menggunakan path yang sudah pasti benar
+    day_df = pd.read_csv(day_path)
+    hour_df = pd.read_csv(hour_path)
 
     day_df['dteday'] = pd.to_datetime(day_df['dteday'])
 
-    # Mapping
+    # Mapping... (lanjutkan kode Anda yang sebelumnya di sini)
     season_mapping = {1: 'spring', 2: 'summer', 3: 'fall', 4: 'winter'}
     day_df['season_label'] = day_df['season'].map(season_mapping)
 
