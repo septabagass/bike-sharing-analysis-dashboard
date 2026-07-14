@@ -1,39 +1,91 @@
-# Proyek Analisis Data: Bike Sharing
+# 🚲 Bike Sharing Analysis Dashboard
 
-Proyek ini bertujuan untuk menganalisis pola penggunaan layanan bike sharing berdasarkan faktor waktu, musim, dan kondisi cuaca. Analisis dilakukan menggunakan pendekatan *Exploratory Data Analysis (EDA)* dan divisualisasikan melalui dashboard interaktif menggunakan Streamlit.
+Proyek ini bertujuan untuk menganalisis pola penggunaan layanan **Bike Sharing** berdasarkan faktor waktu dan kondisi cuaca. Analisis dilakukan menggunakan pendekatan **Exploratory Data Analysis (EDA)** dan divisualisasikan melalui dashboard interaktif menggunakan **Streamlit**.
 
-Proyek ini dibuat sebagai bagian dari submission untuk kelas **Belajar Analisis Data dengan Python** di Dicoding.
-
----
-
-## Deskripsi Proyek
-
-Dalam analisis ini, beberapa pertanyaan bisnis yang ingin dijawab adalah:
-
-1. Berapa persentase perbedaan rata-rata penyewa sepeda pengguna *registered* pada jam sibuk (07:00–09:00 dan 17:00–19:00) dibandingkan jam kerja biasa pada hari kerja (Senin–Jumat) selama tahun 2012?
-
-2. Seberapa besar persentase penurunan rata-rata total penyewa harian (*cnt*) saat kondisi cuaca berubah dari *Clear* menjadi *Light Snow* selama musim dingin (*winter*) pada tahun 2011–2012?
-
-3. Berapa tingkat pertumbuhan pengguna *casual* di akhir pekan pada musim panas (*summer*) dibandingkan musim semi (*spring*) pada tahun 2012?
-
-Melalui pertanyaan-pertanyaan tersebut, diharapkan dapat diperoleh insight mengenai perilaku pengguna sepeda, baik untuk kebutuhan commuting maupun rekreasi.
+Proyek ini dibuat sebagai bagian dari submission pada kelas **Belajar Analisis Data dengan Python** yang diselenggarakan oleh **Dicoding**.
 
 ---
 
-## Setup Environment
+## 📌 Business Questions
+
+Analisis ini dilakukan untuk menjawab pertanyaan bisnis berikut.
+
+1. Bagaimana perbedaan rata-rata jumlah penyewa sepeda pengguna **registered** antara jam sibuk (*rush hour*) dan jam non-sibuk pada hari kerja selama tahun 2012?
+
+2. Bagaimana pengaruh kondisi cuaca terhadap rata-rata jumlah penyewaan sepeda pada musim dingin (*winter*) selama periode 2011–2012?
+
+---
+
+## 🛠️ Setup Environment
+
+### Menggunakan Anaconda
 
 ```bash
-### Menggunakan Anaconda
 conda create --name main-ds python=3.9
 conda activate main-ds
 pip install -r requirements.txt
+```
 
-### Menggunakan Shell/Terminal
-cd submission
+### Menggunakan Virtual Environment (Shell/Terminal)
+
+```bash
 python -m venv venv
-venv\Scripts\activate   # untuk Windows
-pip install -r requirements.txt
+```
 
-### Menjalankan Dashboard
+Aktivasi virtual environment:
+
+**Windows**
+
+```bash
+venv\Scripts\activate
+```
+
+**Linux/macOS**
+
+```bash
+source venv/bin/activate
+```
+
+Install seluruh library yang dibutuhkan:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## ▶️ Menjalankan Dashboard
+
+Masuk ke folder dashboard:
+
+```bash
 cd dashboard
+```
+
+Jalankan aplikasi Streamlit:
+
+```bash
 streamlit run dashboard.py
+```
+
+---
+
+## 📂 Struktur Proyek
+
+```text
+bike-sharing-analysis-dashboard
+│
+├── dashboard
+│   ├── dashboard.py
+│   ├── day.csv
+│   └── hour.csv
+│
+├── data
+│   ├── day.csv
+│   └── hour.csv
+│
+├── notebook.ipynb
+├── README.md
+├── requirements.txt
+└── url.txt
+```
