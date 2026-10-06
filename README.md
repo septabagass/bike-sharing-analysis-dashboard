@@ -1,91 +1,225 @@
-# 🚲 Bike Sharing Analysis Dashboard
+# 🚲 Bike Sharing Analytics Dashboard
 
-Proyek ini bertujuan untuk menganalisis pola penggunaan layanan **Bike Sharing** berdasarkan faktor waktu dan kondisi cuaca. Analisis dilakukan menggunakan pendekatan **Exploratory Data Analysis (EDA)** dan divisualisasikan melalui dashboard interaktif menggunakan **Streamlit**.
+## Project Overview
 
-Proyek ini dibuat sebagai bagian dari submission pada kelas **Belajar Analisis Data dengan Python** yang diselenggarakan oleh **Dicoding**.
+Proyek ini bertujuan untuk menganalisis pola penggunaan layanan bike sharing berdasarkan faktor waktu, musim, kondisi cuaca, dan karakteristik pengguna.
 
----
+Analisis dilakukan menggunakan pendekatan Exploratory Data Analysis (EDA), kemudian hasil analisis divisualisasikan melalui dashboard interaktif menggunakan Streamlit.
 
-## 📌 Business Questions
+Project ini dibuat sebagai bagian dari submission kelas **Belajar Analisis Data dengan Python** di Dicoding.
 
-Analisis ini dilakukan untuk menjawab pertanyaan bisnis berikut.
 
-1. Bagaimana perbedaan rata-rata jumlah penyewa sepeda pengguna **registered** antara jam sibuk (*rush hour*) dan jam non-sibuk pada hari kerja selama tahun 2012?
+## Business Questions
 
-2. Bagaimana pengaruh kondisi cuaca terhadap rata-rata jumlah penyewaan sepeda pada musim dingin (*winter*) selama periode 2011–2012?
+Analisis ini dilakukan untuk menjawab beberapa pertanyaan berikut:
 
----
+### 1. Rush Hour
 
-## 🛠️ Setup Environment
+Berapa persentase perbedaan rata-rata pengguna `registered` pada jam sibuk dibandingkan jam biasa pada hari kerja selama tahun 2012?
 
-### Menggunakan Anaconda
+### 2. Pengaruh Cuaca
 
-```bash
-conda create --name main-ds python=3.9
-conda activate main-ds
-pip install -r requirements.txt
+Bagaimana pengaruh kondisi cuaca terhadap rata-rata jumlah penyewaan sepeda pada musim dingin (winter) selama tahun 2011–2012?
+
+
+## Dataset
+
+Dataset yang digunakan adalah dataset Bike Sharing yang berisi:
+
+| Variabel | Deskripsi |
+|---|---|
+| `dteday` | Tanggal |
+| `hr` | Jam |
+| `season` | Musim |
+| `workingday` | Status hari kerja |
+| `weathersit` | Kondisi cuaca |
+| `temp` | Suhu |
+| `hum` | Kelembapan |
+| `windspeed` | Kecepatan angin |
+| `casual` | Jumlah pengguna casual |
+| `registered` | Jumlah pengguna registered |
+| `cnt` | Total penyewaan |
+
+
+## Data Understanding
+
+Dataset digunakan untuk memahami pola penyewaan sepeda berdasarkan waktu, kondisi lingkungan, dan karakteristik pengguna.
+
+Beberapa variabel utama yang menjadi fokus analisis adalah:
+
+- `registered`
+- `casual`
+- `cnt`
+- `season`
+- `weathersit`
+- `workingday`
+- `hr`
+
+
+## Data Cleaning
+
+Sebelum dilakukan analisis, dilakukan beberapa proses data cleaning, antara lain:
+
+- Memeriksa menghapus kolom instant
+- Menyesuaikan tipe data
+- Melakukan transformasi variabel kategorikal
+- Menangani nilai kelembapan yang bernilai 0
+
+
+## Exploratory Data Analysis
+
+### Business Question 1 — Rush Hour
+
+Analisis dilakukan dengan memfilter data tahun 2012 dan hari kerja.
+
+Jam sibuk didefinisikan sebagai:
+
+- 07:00–09:00
+- 16:00–19:00
+
+Kemudian dibandingkan rata-rata pengguna `registered`
+antara Rush Hour dan Non-Rush Hour.
+
+![Rush Hour Analysis](images/rush_hour.png)
+
+**Hasil Analisis**
+
+Rata-rata pengguna registered pada Rush Hour adalah 435.492529
+sedangkan pada Non-Rush Hour adalah 117.099668
+
+Dengan demikian, rata-rata pengguna registered pada Rush Hour lebih tinggi sebesar **271.90%** dibandingkan Non-Rush Hour.
+
+
+## Key Findings
+
+### 🚦 Rush Hour
+
+Penggunaan sepeda oleh pengguna registered meningkat secara signifikan pada jam sibuk hari kerja. Hal ini menunjukkan bahwa layanan bike sharing memiliki peran penting dalam aktivitas perjalanan rutin atau commuting.
+
+### 🌧️ Weather
+
+Jumlah penyewaan menurun ketika kondisi cuaca memburuk. Hal ini menunjukkan bahwa kondisi cuaca merupakan salah satu faktor yang dapat memengaruhi permintaan layanan.
+
+### 🚲 Casual User
+
+Pengguna casual menunjukkan pola penggunaan yang lebih kuat pada periode tertentu, terutama yang berkaitan dengan aktivitas rekreasi.
+
+
+## Interactive Dashboard
+
+Hasil analisis kemudian dikembangkan menjadi dashboard interaktif menggunakan Streamlit.
+
+Dashboard menyediakan fitur:
+
+- Filter tahun
+- Filter musim
+- Filter kondisi cuaca
+- Filter jenis hari
+- Total penyewaan
+- Rata-rata penyewaan
+- Registered user
+- Casual user
+- Tren penyewaan
+- Penyewaan berdasarkan jam
+- Penyewaan berdasarkan musim
+- Analisis Rush Hour
+
+
+## Tools & Technologies
+
+- Python
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
+- Plotly
+- Streamlit
+- colab
+- Git & GitHub
+
+
+## Project Structure
+
+```text
+bike-sharing-dashboard/
+│
+├── dashboard/
+│   ├── dashboard.py
+│   ├── hour_bersih.csv
+│   ├── requirements.txt
+│   │
+│   └── assets/
+│       └── logo.png
+│
+├── notebook/
+│   └── bike_sharing_analysis.ipynb
+│
+├── images/
+│   ├── rush_hour.png
+│   ├── weather.png
+│   └── seasonal.png
+│
+└── README.md
 ```
 
-### Menggunakan Virtual Environment (Shell/Terminal)
+
+# 11. Installation & Setup
+
+```markdown
+## Installation & Setup
+
+### 1. Clone Repository
 
 ```bash
-python -m venv venv
+git clone <repository-url>
+cd bike-sharing-dashboard
 ```
 
-Aktivasi virtual environment:
 
-**Windows**
+# 12. How to Run
 
-```bash
-venv\Scripts\activate
-```
+```markdown
+## How to Run
 
-**Linux/macOS**
-
-```bash
-source venv/bin/activate
-```
-
-Install seluruh library yang dibutuhkan:
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## ▶️ Menjalankan Dashboard
-
-Masuk ke folder dashboard:
-
-```bash
-cd dashboard
-```
-
-Jalankan aplikasi Streamlit:
+Jalankan dashboard menggunakan:
 
 ```bash
 streamlit run dashboard.py
 ```
 
+
 ---
 
-## 📂 Struktur Proyek
+# 13. Recommendations
 
-```text
-bike-sharing-analysis-dashboard
-│
-├── dashboard
-│   ├── dashboard.py
-│   ├── day.csv
-│   └── hour.csv
-│
-├── data
-│   ├── day.csv
-│   └── hour.csv
-│
-├── notebook.ipynb
-├── README.md
-├── requirements.txt
-└── url.txt
+```markdown
+## Recommendations
+
+Berdasarkan hasil analisis, beberapa rekomendasi yang dapat
+dipertimbangkan adalah:
+
+1. **Optimalisasi layanan pada jam sibuk**
+
+   Meningkatkan ketersediaan sepeda pada periode Rush Hour
+   untuk mengantisipasi tingginya permintaan pengguna registered.
+
+2. **Strategi saat kondisi cuaca buruk**
+
+   Menyusun strategi promosi atau layanan tambahan pada kondisi
+   cuaca yang menyebabkan penurunan jumlah penyewaan.
+
+3. **Strategi untuk pengguna casual**
+
+   Mengembangkan promosi yang ditujukan kepada pengguna casual
+   pada periode dengan aktivitas rekreasi yang tinggi.
 ```
+
+## Author
+
+**Septa Bagas Setyawan**
+
+Data Analyst  
+Universitas Negeri Yogyakarta
+
+[LinkedIn](https://www.linkedin.com/in/septabagass/)
+[GitHub](https://github.com/septabagass)
