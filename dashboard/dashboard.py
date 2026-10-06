@@ -1,146 +1,598 @@
-import pandas as pd
-import os # Tambahkan library os
 import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+
+# =========================================================
+# KONFIGURASI HALAMAN
+# =========================================================
+
+st.set_page_config(
+    page_title="Bike Sharing Analytics",
+    page_icon="🚲",
+    layout="wide"
+)
+
+
+# =========================================================
+# CUSTOM CSS
+# =========================================================
+
+st.markdown("""
+<style>
+
+    /* Background utama */
+    .stApp {
+        background-color: var(--background-color);
+    }
+
+    /* Judul */
+    .main-title {
+        font-size: 34px;
+        font-weight: 700;
+        margin-bottom: 0px;
+        color: var(--text-color);
+    }
+
+    /* Subtitle */
+    .subtitle {
+        color: var(--text-color);
+        opacity: 0.7;
+        font-size: 15px;
+        margin-top: 0px;
+    }
+
+    /* KPI */
+    div[data-testid="stMetric"] {
+        background-color: var(--secondary-background-color);
+        padding: 18px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.04);
+    }
+
+    /* Label KPI */
+    div[data-testid="stMetricLabel"] {
+        color: var(--text-color) !important;
+    }
+
+    /* Nilai KPI */
+    div[data-testid="stMetricValue"] {
+        color: var(--text-color) !important;
+    }
+
+    /* Delta KPI */
+    div[data-testid="stMetricDelta"] {
+        color: var(--text-color) !important;
+    }
+
+    /* Section */
+    .section-title {
+        font-size: 21px;
+        font-weight: 600;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: var(--text-color);
+    }
+
+    /* Insight box */
+    .insight-box {
+        background-color: var(--secondary-background-color);
+        padding: 18px;
+        border-radius: 12px;
+        border-left: 5px solid #2563EB;
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.04);
+        color: var(--text-color);
+    }
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# =========================================================
+# LOAD DATA
+# =========================================================
 
 @st.cache_data
 def load_data():
-    # Mendapatkan direktori tempat file dashboard.py ini berada
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # Menggabungkan direktori dengan nama file CSV
-    day_path = os.path.join(current_dir, "day.csv")
-    hour_path = os.path.join(current_dir, "hour.csv")
 
-    # Membaca CSV menggunakan path yang sudah pasti benar
-    day_df = pd.read_csv(day_path)
-    hour_df = pd.read_csv(hour_path)
+    df = pd.read_csv("hour_bersih.csv")
 
-    day_df['dteday'] = pd.to_datetime(day_df['dteday'])
+    df["dteday"] = pd.to_datetime(df["dteday"])
 
-    # Mapping... (lanjutkan kode Anda yang sebelumnya di sini)
-    season_mapping = {1: 'spring', 2: 'summer', 3: 'fall', 4: 'winter'}
-    day_df['season_label'] = day_df['season'].map(season_mapping)
+    return df
 
-    weathersit_mapping = {1: 'Clear', 2: 'Mist', 3: 'Light Rain', 4: 'Heavy Rain'}
-    day_df['weathersit_label'] = day_df['weathersit'].map(weathersit_mapping)
 
-    day_df['yr_label'] = day_df['yr'].map({0: 2011, 1: 2012})
-    hour_df['yr_label'] = hour_df['yr'].map({0: 2011, 1: 2012})
-    
-    return day_df, hour_df
+df = load_data()
 
-# Load data
-day_df, hour_df = load_data()
 
-# Header
-st.title("🚲 Bike Sharing Dashboard")
+# =========================================================
+# SIDEBAR
+# =========================================================
 
-# Sidebar Filter 
 with st.sidebar:
-    st.header("Filter Tanggal")
 
-    min_date = day_df['dteday'].min().date()
-    max_date = day_df['dteday'].max().date()
+    # Logo
+    try:
+        st.image(
+            "assets/logo.png",
+            width=100
+        )
+    except:
+        st.markdown("### 🚲")
 
-    # Mengambil input tanggal
-    date_range = st.date_input(
-        label='Pilih Rentang Tanggal',
-        min_value=min_date,
-        max_value=max_date,
-        value=[min_date, max_date]
+    st.markdown("## Bike Sharing")
+    st.caption("Analytics Dashboard")
+
+    st.divider()
+
+    st.markdown("### Filter Data")
+
+    # Tahun
+    years = sorted(df["dteday"].dt.year.unique())
+
+    selected_year = st.selectbox(
+        "Tahun",
+        ["Semua"] + years
     )
 
-    # Handling error jika user baru memilih satu tanggal di kalender
-    if len(date_range) == 2:
-        start_date, end_date = date_range
-    else:
-        start_date = end_date = date_range[0]
+    # Musim
+    season_options = sorted(df["season"].unique())
 
-    st.write("Tanggal dipilih:", start_date, "sampai", end_date)
+    selected_season = st.multiselect(
+        "Musim",
+        season_options,
+        default=season_options
+    )
+
+    # Working day
+    working_options = {
+        "Semua": "Semua",
+        "Hari Kerja": 1,
+        "Hari Libur": 0
+    }
+
+    selected_working = st.selectbox(
+        "Jenis Hari",
+        list(working_options.keys())
+    )
 
 
-# Filter dataframe berdasarkan input
-filtered_df = day_df[
-    (day_df['dteday'] >= pd.to_datetime(start_date)) &
-    (day_df['dteday'] <= pd.to_datetime(end_date))
+# =========================================================
+# FILTER DATA
+# =========================================================
+
+filtered_df = df.copy()
+
+
+# Filter tahun
+if selected_year != "Semua":
+
+    filtered_df = filtered_df[
+        filtered_df["dteday"].dt.year == selected_year
+    ]
+
+
+# Filter musim
+filtered_df = filtered_df[
+    filtered_df["season"].isin(selected_season)
 ]
 
-# Metrics
-col1, col2, col3 = st.columns(3)
 
-total = int(filtered_df['cnt'].sum()) if not filtered_df.empty else 0
-avg = int(filtered_df['cnt'].mean()) if not filtered_df.empty else 0
-max_val = int(filtered_df['cnt'].max()) if not filtered_df.empty else 0
+# Filter working day
+if selected_working != "Semua":
+
+    filtered_df = filtered_df[
+        filtered_df["workingday"] ==
+        working_options[selected_working]
+    ]
+
+
+# =========================================================
+# HEADER
+# =========================================================
+
+try:
+        st.image(
+        "assets/logo.png",
+        width=100
+    )
+except:
+    st.markdown("## 🚲")
+
+
+st.markdown(
+    '<p class="main-title">Bike Sharing Analytics Dashboard</p>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<p class="subtitle">'
+    'Dashboard analisis pola penyewaan sepeda berdasarkan '
+    'waktu, musim, dan kondisi cuaca.'
+    '</p>',
+    unsafe_allow_html=True
+)
+
+st.divider()
+
+
+# =========================================================
+# KPI
+# =========================================================
+
+total_rental = filtered_df["cnt"].sum()
+
+average_rental = filtered_df["cnt"].mean()
+
+total_registered = filtered_df["registered"].sum()
+
+total_casual = filtered_df["casual"].sum()
+
+
+col1, col2, col3, col4 = st.columns(4)
+
 
 with col1:
-    st.metric("Total Rental", f"{total:,}")
+
+    st.metric(
+        "Total Penyewaan",
+        f"{total_rental:,.0f}"
+    )
+
+
 with col2:
-    st.metric("Average Rental", f"{avg:,}")
+
+    st.metric(
+        "Rata-rata Penyewaan",
+        f"{average_rental:,.0f}"
+    )
+
+
 with col3:
-    st.metric("Max Rental", f"{max_val:,}")
 
-st.markdown("---")
+    st.metric(
+        "Registered User",
+        f"{total_registered:,.0f}"
+    )
 
-# 1. RUSH HOUR
-st.subheader("Insight 1: Rush Hour vs Non-Rush Hour")
 
-data_2012 = hour_df[
-    (hour_df['yr_label'] == 2012) & 
-    (hour_df['workingday'] == 1)
-].copy()
+with col4:
 
-def kategori_jam(jam):
-    if (7 <= jam <= 9) or (17 <= jam <= 19):
-        return 'Rush Hour'
+    st.metric(
+        "Casual User",
+        f"{total_casual:,.0f}"
+    )
+
+
+# =========================================================
+# TREND PENYEWAAN
+# =========================================================
+
+st.markdown(
+    '<p class="section-title">📈 Tren Penyewaan Sepeda</p>',
+    unsafe_allow_html=True
+)
+
+
+daily = (
+    filtered_df
+    .groupby("dteday", as_index=False)["cnt"]
+    .sum()
+)
+
+
+fig_trend = px.line(
+    daily,
+    x="dteday",
+    y="cnt",
+    markers=True,
+    labels={
+        "dteday": "Tanggal",
+        "cnt": "Jumlah Penyewaan"
+    }
+)
+
+
+fig_trend.update_layout(
+    height=400,
+    hovermode="x unified",
+    margin=dict(l=20, r=20, t=20, b=20)
+)
+
+
+st.plotly_chart(
+    fig_trend,
+    use_container_width=True
+)
+
+
+# =========================================================
+# JAM & MUSIM
+# =========================================================
+
+col1, col2 = st.columns(2)
+
+
+# ---------------------------------------------------------
+# PENYEWAAN BERDASARKAN JAM
+# ---------------------------------------------------------
+
+with col1:
+
+    st.markdown(
+        '<p class="section-title">🕐 Penyewaan Berdasarkan Jam</p>',
+        unsafe_allow_html=True
+    )
+
+    # Kalau dataset yang digunakan adalah hourly,
+    # bagian ini dapat digunakan ketika kolom hr tersedia.
+
+    if "hr" in filtered_df.columns:
+
+        hourly = (
+            filtered_df
+            .groupby("hr", as_index=False)["cnt"]
+            .mean()
+        )
+
+        fig_hour = px.line(
+            hourly,
+            x="hr",
+            y="cnt",
+            markers=True,
+            labels={
+                "hr": "Jam",
+                "cnt": "Rata-rata Penyewaan"
+            }
+        )
+
+        fig_hour.update_layout(
+            height=350,
+            margin=dict(l=20, r=20, t=20, b=20)
+        )
+
+        st.plotly_chart(
+            fig_hour,
+            use_container_width=True
+        )
+
     else:
-        return 'Non Rush Hour'
 
-data_2012['kategori_jam'] = data_2012['hr'].apply(kategori_jam)
-rata2_jam = data_2012.groupby('kategori_jam')['registered'].mean()
+        st.info(
+            "Kolom 'hr' tidak tersedia pada dataset harian."
+        )
 
-rush = rata2_jam.get('Rush Hour', 0)
-non_rush = rata2_jam.get('Non Rush Hour', 0)
-persentase = ((rush - non_rush) / non_rush) * 100 if non_rush != 0 else 0
 
-st.metric("Perbedaan Penggunaan (%)", f"{persentase:.2f}%")
+# ---------------------------------------------------------
+# PENYEWAAN BERDASARKAN MUSIM
+# ---------------------------------------------------------
 
-fig, ax = plt.subplots(figsize=(8, 5))
-bars = ax.bar(rata2_jam.index, rata2_jam.values, color=['#90CAF9','#1976D2'])
+with col2:
 
-for bar in bars:
-    yval = bar.get_height()
-    ax.text(bar.get_x() + bar.get_width()/2, yval + 5, f'{yval:.0f}', ha='center')
+    st.markdown(
+        '<p class="section-title">🌤️ Penyewaan Berdasarkan Musim</p>',
+        unsafe_allow_html=True
+    )
 
-ax.set_title("Registered Users Comparison (2012 Working Days)")
-ax.set_ylabel("Average Registered Users")
-st.pyplot(fig)
+    seasonal = (
+        filtered_df
+        .groupby("season", as_index=False)["cnt"]
+        .mean()
+    )
 
-st.caption("Penggunaan sepeda meningkat secara signifikan saat jam commuting (pagi & sore).")
+    fig_season = px.bar(
+        seasonal,
+        x="season",
+        y="cnt",
+        labels={
+            "season": "Musim",
+            "cnt": "Rata-rata Penyewaan"
+        }
+    )
 
-st.markdown("---")
+    fig_season.update_layout(
+        height=350,
+        margin=dict(l=20, r=20, t=20, b=20)
+    )
 
-# 2. CUACA
-st.subheader("Insight 2: Dampak Cuaca pada Musim Dingin (Winter)")
+    st.plotly_chart(
+        fig_season,
+        use_container_width=True
+    )
 
-winter = day_df[day_df['season_label'] == 'winter']
-weather = winter[winter['weathersit_label'].isin(['Clear', 'Light Rain'])]
-rata2_cuaca = weather.groupby('weathersit_label')['cnt'].mean()
 
-clear = rata2_cuaca.get('Clear', 0)
-rain = rata2_cuaca.get('Light Rain', 0)
-penurunan = ((clear - rain) / clear) * 100 if clear != 0 else 0
+# =========================================================
+# REGISTERED VS CASUAL
+# =========================================================
 
-st.metric("Penurunan Penggunaan karena Hujan (%)", f"{penurunan:.2f}%")
+st.markdown(
+    '<p class="section-title">👥 Registered vs Casual User</p>',
+    unsafe_allow_html=True
+)
 
-fig2, ax2 = plt.subplots(figsize=(8, 5))
-bars2 = ax2.bar(rata2_cuaca.index, rata2_cuaca.values, color=['#90CAF9','#EF5350'])
 
-for bar in bars2:
-    yval = bar.get_height()
-    ax2.text(bar.get_x() + bar.get_width()/2, yval + 50, f'{yval:.0f}', ha='center')
+user_type = pd.DataFrame({
+    "Tipe User": [
+        "Registered",
+        "Casual"
+    ],
+    "Jumlah": [
+        filtered_df["registered"].sum(),
+        filtered_df["casual"].sum()
+    ]
+})
 
-ax2.set_title("Weather Impact on Bike Rentals (Winter)")
-ax2.set_ylabel("Average Total Rentals")
-st.pyplot(fig2)
 
-st.caption("Cuaca buruk (hujan ringan) menurunkan minat penggunaan sepeda secara signifikan di musim dingin.")
+fig_user = px.bar(
+    user_type,
+    x="Tipe User",
+    y="Jumlah",
+    text="Jumlah",
+    labels={
+        "Jumlah": "Total User"
+    }
+)
+
+
+fig_user.update_traces(
+    texttemplate="%{text:,.0f}",
+    textposition="outside"
+)
+
+
+fig_user.update_layout(
+    height=350,
+    margin=dict(l=20, r=20, t=20, b=20)
+)
+
+
+st.plotly_chart(
+    fig_user,
+    use_container_width=True
+)
+
+
+# =========================================================
+# RUSH HOUR ANALYSIS
+# =========================================================
+
+st.markdown(
+    '<p class="section-title">🚦 Rush Hour Analysis</p>',
+    unsafe_allow_html=True
+)
+
+
+if "hr" in filtered_df.columns:
+
+    rush_df = filtered_df.copy()
+
+    rush_df["hour_category"] = rush_df["hr"].apply(
+        lambda x:
+        "Rush Hour"
+        if (7 <= x <= 9) or (16 <= x <= 19)
+        else "Non-Rush Hour"
+    )
+
+
+    avg_registered = (
+        rush_df
+        .groupby("hour_category")["registered"]
+        .mean()
+        .reset_index()
+    )
+
+
+    rush_avg = avg_registered.loc[
+        avg_registered["hour_category"] == "Rush Hour",
+        "registered"
+    ].iloc[0]
+
+
+    non_rush_avg = avg_registered.loc[
+        avg_registered["hour_category"] == "Non-Rush Hour",
+        "registered"
+    ].iloc[0]
+
+
+    percentage_difference = (
+        (rush_avg - non_rush_avg)
+        / non_rush_avg
+    ) * 100
+
+
+    col1, col2 = st.columns([2, 1])
+
+
+    with col1:
+
+        fig_rush = px.bar(
+            avg_registered,
+            x="hour_category",
+            y="registered",
+            text="registered",
+            labels={
+                "hour_category": "Kategori Jam",
+                "registered": "Rata-rata Registered User"
+            }
+        )
+
+
+        fig_rush.update_traces(
+            texttemplate="%{text:.2f}",
+            textposition="outside"
+        )
+
+
+        fig_rush.update_layout(
+            height=400,
+            margin=dict(l=20, r=20, t=20, b=20)
+        )
+
+
+        st.plotly_chart(
+            fig_rush,
+            use_container_width=True
+        )
+
+
+    with col2:
+
+        st.metric(
+            "Selisih Rush Hour",
+            f"{percentage_difference:.2f}%"
+        )
+
+
+        st.markdown(
+            f"""
+            <div class="insight-box">
+
+            <b>💡 Insight</b>
+
+            <p>
+            Rata-rata registered user pada
+            <b>Rush Hour</b> mencapai
+            <b>{rush_avg:.2f}</b> pengguna.
+            </p>
+
+            <p>
+            Sedangkan pada
+            <b>Non-Rush Hour</b> sebesar
+            <b>{non_rush_avg:.2f}</b> pengguna.
+            </p>
+
+            <p>
+            Artinya, penggunaan pada Rush Hour
+            sekitar <b>{percentage_difference:.2f}%</b>
+            lebih tinggi.
+            </p>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+# =========================================================
+# DATA PREVIEW
+# =========================================================
+
+with st.expander("🔎 Lihat Data yang Digunakan"):
+
+    st.dataframe(
+        filtered_df,
+        use_container_width=True
+    )
+
+
+# =========================================================
+# FOOTER
+# =========================================================
+
+st.divider()
+
+st.caption(
+    "Bike Sharing Analytics Dashboard • "
+    "Developed for Data Analysis Project"
+)
