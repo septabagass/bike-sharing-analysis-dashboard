@@ -162,9 +162,9 @@ bike-sharing-dashboard/
 # 11. Installation & Setup
 
 ```markdown
-## Installation & Setup
+Installation & Setup
 
-### 1. Clone Repository
+1. Clone Repository
 
 ```bash
 git clone <repository-url>
