@@ -80,7 +80,7 @@ Jam sibuk didefinisikan sebagai:
 Kemudian dibandingkan rata-rata pengguna `registered`
 antara Rush Hour dan Non-Rush Hour.
 
-![Rush Hour Analysis](images/rush_hour.png)
+![Rush Hour Analysis](images/Avg_Rush_NonRush.png)
 
 **Hasil Analisis**
 
