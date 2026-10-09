@@ -11,8 +11,6 @@ Project ini dibuat sebagai bagian dari submission kelas **Belajar Analisis Data 
 
 ## Business Questions
 
-Analisis ini dilakukan untuk menjawab beberapa pertanyaan berikut:
-
 ### 1. Rush Hour
 
 Berapa persentase perbedaan rata-rata pengguna `registered` pada jam sibuk dibandingkan jam biasa pada hari kerja selama tahun 2012?
@@ -23,8 +21,6 @@ Bagaimana pengaruh kondisi cuaca terhadap rata-rata jumlah penyewaan sepeda pada
 
 
 ## Dataset
-
-Dataset yang digunakan adalah dataset Bike Sharing yang berisi:
 
 | Variabel | Deskripsi |
 |---|---|
@@ -198,17 +194,17 @@ streamlit run dashboard.py
 Berdasarkan hasil analisis, beberapa rekomendasi yang dapat
 dipertimbangkan adalah:
 
-1. **Optimalisasi layanan pada jam sibuk**
+1. Optimalisasi layanan pada jam sibuk
 
    Meningkatkan ketersediaan sepeda pada periode Rush Hour
    untuk mengantisipasi tingginya permintaan pengguna registered.
 
-2. **Strategi saat kondisi cuaca buruk**
+2. Strategi saat kondisi cuaca buruk
 
    Menyusun strategi promosi atau layanan tambahan pada kondisi
    cuaca yang menyebabkan penurunan jumlah penyewaan.
 
-3. **Strategi untuk pengguna casual**
+3. Strategi untuk pengguna casual
 
    Mengembangkan promosi yang ditujukan kepada pengguna casual
    pada periode dengan aktivitas rekreasi yang tinggi.
@@ -218,8 +214,7 @@ dipertimbangkan adalah:
 
 **Septa Bagas Setyawan**
 
-Data Analyst  
-Universitas Negeri Yogyakarta
+Coding Camp - Data Science
 
 [LinkedIn](https://www.linkedin.com/in/septabagass/)
 [GitHub](https://github.com/septabagass)
